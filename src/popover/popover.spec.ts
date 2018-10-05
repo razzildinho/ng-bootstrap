@@ -18,6 +18,8 @@ import {NgbPopoverModule} from './popover.module';
 import {NgbPopoverWindow, NgbPopover} from './popover';
 import {NgbPopoverConfig} from './popover-config';
 
+import {NgbConfig} from '../tokens';
+
 function dispatchEscapeKeyUpEvent() {
   document.dispatchEvent(createKeyEvent(Key.Escape));
 }
@@ -111,7 +113,7 @@ describe('ngb-popover', () => {
           <ng-template #t>Hello, {{name}}!</ng-template>
           <div [ngbPopover]="t" popoverTitle="Title" style="margin-top: 100px;"></div>`);
       const directive = fixture.debugElement.query(By.directive(NgbPopover));
-      const defaultConfig = new NgbPopoverConfig();
+      const defaultConfig = new NgbPopoverConfig(new NgbConfig());
 
       directive.triggerEventHandler('click', {});
       fixture.detectChanges();
@@ -136,7 +138,7 @@ describe('ngb-popover', () => {
           <ng-template #t let-name="name">Hello, {{name}}!</ng-template>
           <div [ngbPopover]="t" popoverTitle="Title" style="margin-top: 100px;"></div>`);
       const directive = fixture.debugElement.query(By.directive(NgbPopover));
-      const defaultConfig = new NgbPopoverConfig();
+      const defaultConfig = new NgbPopoverConfig(new NgbConfig());
 
       directive.context.popover.open({name: 'John'});
       fixture.detectChanges();
@@ -677,7 +679,7 @@ describe('ngb-popover', () => {
   });
 
   describe('Custom config as provider', () => {
-    let config = new NgbPopoverConfig();
+    let config = new NgbPopoverConfig(new NgbConfig());
     config.placement = 'bottom';
     config.triggers = 'hover';
     config.popoverClass = 'my-custom-class';

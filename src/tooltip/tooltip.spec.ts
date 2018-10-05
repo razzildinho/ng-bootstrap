@@ -9,6 +9,7 @@ import {Key} from '../util/key';
 import {NgbTooltipModule} from './tooltip.module';
 import {NgbTooltipWindow, NgbTooltip} from './tooltip';
 import {NgbTooltipConfig} from './tooltip-config';
+import {NgbConfig} from '../tokens';
 
 function dispatchEscapeKeyUpEvent() {
   document.dispatchEvent(createKeyEvent(Key.Escape));
@@ -68,7 +69,7 @@ describe('ngb-tooltip', () => {
     it('should open and close a tooltip - default settings and content as string', () => {
       const fixture = createTestComponent(`<div ngbTooltip="Great tip!" style="margin-top: 100px;"></div>`);
       const directive = fixture.debugElement.query(By.directive(NgbTooltip));
-      const defaultConfig = new NgbTooltipConfig();
+      const defaultConfig = new NgbTooltipConfig(new NgbConfig());
 
       directive.triggerEventHandler('mouseenter', {});
       fixture.detectChanges();
@@ -579,7 +580,7 @@ describe('ngb-tooltip', () => {
   });
 
   describe('Custom config as provider', () => {
-    let config = new NgbTooltipConfig();
+    let config = new NgbTooltipConfig(new NgbConfig());
     config.placement = 'bottom';
     config.triggers = 'click';
     config.container = 'body';

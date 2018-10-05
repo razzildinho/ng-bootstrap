@@ -5,5 +5,7 @@ import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 export class ModalFocusComponent {
   constructor(private modalService: NgbModal) {}
 
-  openModal(content?: TemplateRef<any>) { this.modalService.open(content ? content : 'Modal content'); }
+  openModal(content?: TemplateRef<any>) {
+    this.modalService.open(content ? content : 'Modal content', {enableAnimation: false});
+  }
 }

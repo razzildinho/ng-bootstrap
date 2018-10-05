@@ -1,6 +1,7 @@
 import {NgModule, ModuleWithProviders} from '@angular/core';
 
 import {NgbPopover, NgbPopoverWindow} from './popover';
+import {NgbTransitionModule} from '../util/transition/transition.module';
 import {CommonModule} from '@angular/common';
 
 export {NgbPopover} from './popover';
@@ -10,7 +11,7 @@ export {Placement} from '../util/positioning';
 @NgModule({
   declarations: [NgbPopover, NgbPopoverWindow],
   exports: [NgbPopover],
-  imports: [CommonModule],
+  imports: [CommonModule, NgbTransitionModule],
   entryComponents: [NgbPopoverWindow]
 })
 export class NgbPopoverModule {

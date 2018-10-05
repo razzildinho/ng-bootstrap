@@ -1,4 +1,4 @@
-import {NgModule, ModuleWithProviders} from '@angular/core';
+import {NgModule, ModuleWithProviders, InjectionToken} from '@angular/core';
 
 import {NgbAccordionModule} from './accordion/accordion.module';
 import {NgbAlertModule} from './alert/alert.module';
@@ -112,6 +112,9 @@ export {
 } from './typeahead/typeahead.module';
 
 export {Placement} from './util/positioning';
+
+export {NgbConfig} from './tokens';
+
 
 const NGB_MODULES = [
   NgbAccordionModule, NgbAlertModule, NgbButtonsModule, NgbCarouselModule, NgbCollapseModule, NgbDatepickerModule,

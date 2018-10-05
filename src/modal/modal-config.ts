@@ -1,4 +1,5 @@
 import {Injectable, Injector} from '@angular/core';
+import {NgbConfig} from '../tokens';
 
 /**
  * Options available when opening new modal windows with `NgbModal.open()` method.
@@ -10,6 +11,11 @@ export interface NgbModalOptions {
    * @since 2.2.0
    */
   ariaLabelledBy?: string;
+
+  /**
+   * A flag to enable/disable the animation when closing.
+   */
+  enableAnimation?: boolean;
 
   /**
    * If `true`, the backdrop element will be created for a given modal.
@@ -88,6 +94,9 @@ export interface NgbModalOptions {
 */
 @Injectable({providedIn: 'root'})
 export class NgbModalConfig implements NgbModalOptions {
+  enableAnimation: boolean;
   backdrop: boolean | 'static' = true;
   keyboard = true;
+
+  constructor(ngbConfig: NgbConfig) { this.enableAnimation = ngbConfig.enableAnimation; }
 }

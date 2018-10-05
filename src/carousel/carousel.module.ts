@@ -1,12 +1,17 @@
 import {NgModule, ModuleWithProviders} from '@angular/core';
 import {CommonModule} from '@angular/common';
+import {NgbTransitionModule} from '../util/transition/transition.module';
 
 import {NGB_CAROUSEL_DIRECTIVES} from './carousel';
 
 export {NgbCarousel, NgbSlide, NgbSlideEvent} from './carousel';
 export {NgbCarouselConfig} from './carousel-config';
 
-@NgModule({declarations: NGB_CAROUSEL_DIRECTIVES, exports: NGB_CAROUSEL_DIRECTIVES, imports: [CommonModule]})
+@NgModule({
+  declarations: NGB_CAROUSEL_DIRECTIVES,
+  exports: NGB_CAROUSEL_DIRECTIVES,
+  imports: [CommonModule, NgbTransitionModule]
+})
 export class NgbCarouselModule {
   /**
    * Importing with '.forRoot()' is no longer necessary, you can simply import the module.

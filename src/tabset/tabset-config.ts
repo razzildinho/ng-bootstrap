@@ -1,4 +1,5 @@
 import {Injectable} from '@angular/core';
+import {NgbConfig} from '../tokens';
 
 /**
  * A configuration service for the [`NgbTabset`](#/components/tabset/api#NgbTabset) component.
@@ -11,4 +12,7 @@ export class NgbTabsetConfig {
   justify: 'start' | 'center' | 'end' | 'fill' | 'justified' = 'start';
   orientation: 'horizontal' | 'vertical' = 'horizontal';
   type: 'tabs' | 'pills' = 'tabs';
+  enableAnimation: boolean;
+
+  constructor(ngbConfig: NgbConfig) { this.enableAnimation = ngbConfig.enableAnimation; }
 }

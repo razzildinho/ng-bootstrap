@@ -8,16 +8,21 @@ import {
   Input,
   OnDestroy,
   OnInit,
-  Output
+  Output,
+  Renderer2
 } from '@angular/core';
 
 import {getFocusableBoundaryElements} from '../util/focus-trap';
 import {ModalDismissReasons} from './modal-dismiss-reasons';
+import {Transition} from '../util/transition/ngbTransition';
+import {Observable} from 'rxjs';
+
 
 @Component({
   selector: 'ngb-modal-window',
   host: {
-    '[class]': '"modal fade show d-block" + (windowClass ? " " + windowClass : "")',
+    '[class]': '"modal d-block" + (windowClass ? " " + windowClass : "")',
+    '[class.fade]': 'enableAnimation',
     'role': 'dialog',
     'tabindex': '-1',
     '(keyup.esc)': 'escKey($event)',
@@ -35,6 +40,7 @@ export class NgbModalWindow implements OnInit,
     AfterViewInit, OnDestroy {
   private _elWithFocus: Element;  // element that is focused prior to modal opening
 
+  @Input() enableAnimation = false;
   @Input() ariaLabelledBy: string;
   @Input() backdrop: boolean | string = true;
   @Input() centered: string;
@@ -44,7 +50,16 @@ export class NgbModalWindow implements OnInit,
 
   @Output('dismiss') dismissEvent = new EventEmitter();
 
-  constructor(@Inject(DOCUMENT) private _document: any, private _elRef: ElementRef<HTMLElement>) {}
+  private _fadingTransition: Transition;
+
+  constructor(
+      @Inject(DOCUMENT) private _document: any, private _elRef: ElementRef<HTMLElement>, private _renderer: Renderer2) {
+    this._fadingTransition = new Transition({classname: 'show'}, this._renderer);
+  }
+
+  hide(): Observable<any> {
+    return this._fadingTransition.hide(this._elRef.nativeElement, {enableAnimation: this.enableAnimation});
+  }
 
   backdropClick($event): void {
     if (this.backdrop === true && this._elRef.nativeElement === $event.target) {
@@ -63,13 +78,16 @@ export class NgbModalWindow implements OnInit,
   ngOnInit() { this._elWithFocus = this._document.activeElement; }
 
   ngAfterViewInit() {
-    if (!this._elRef.nativeElement.contains(document.activeElement)) {
-      const autoFocusable = this._elRef.nativeElement.querySelector(`[ngbAutofocus]`) as HTMLElement;
-      const firstFocusable = getFocusableBoundaryElements(this._elRef.nativeElement)[0];
+    const nativeElement = this._elRef.nativeElement;
+    this._fadingTransition.show(nativeElement, {enableAnimation: this.enableAnimation}).subscribe(() => {
+      if (!nativeElement.contains(document.activeElement)) {
+        const autoFocusable = this._elRef.nativeElement.querySelector(`[ngbAutofocus]`) as HTMLElement;
+        const firstFocusable = getFocusableBoundaryElements(this._elRef.nativeElement)[0];
 
-      const elementToFocus = autoFocusable || firstFocusable || this._elRef.nativeElement;
-      elementToFocus.focus();
-    }
+        const elementToFocus = autoFocusable || firstFocusable || this._elRef.nativeElement;
+        elementToFocus.focus();
+      }
+    });
   }
 
   ngOnDestroy() {

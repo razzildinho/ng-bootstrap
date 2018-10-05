@@ -1,5 +1,14 @@
-<p>
+<div class="mb-2">
+  <div>
+    <ngb-alert *ngIf="show" [dismissible]="false">
+      <strong>Warning!</strong> Better check yourself, you're not looking too good.
+    </ngb-alert>
+  </div>
+  <button type="button" class="btn btn-primary" (click)="toggle()">Toggle</button>
+</div>
+<div *ngFor="let alertNb of alerts" >
   <ngb-alert [dismissible]="false">
-    <strong>Warning!</strong> Better check yourself, you're not looking too good.
+    <strong>Warning!</strong> Alert Nb {{ alertNb }}
   </ngb-alert>
-</p>
+</div>
+<button type="button" class="btn btn-primary" (click)="randomAlerts()">Random</button>
