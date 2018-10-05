@@ -5,6 +5,8 @@ import {createGenericTestComponent} from '../test/common';
 import {Component} from '@angular/core';
 
 import {NgbAccordionModule, NgbPanelChangeEvent, NgbAccordionConfig, NgbAccordion} from './accordion.module';
+import {first} from 'rxjs/operators';
+import {NgbConfig} from 'src/tokens';
 
 const createTestComponent = (html: string) =>
     createGenericTestComponent(html, TestComponent) as ComponentFixture<TestComponent>;
@@ -63,8 +65,8 @@ describe('ngb-accordion', () => {
   });
 
   it('should initialize inputs with default values', () => {
-    const defaultConfig = new NgbAccordionConfig();
-    const accordionCmp = new NgbAccordion(defaultConfig);
+    const defaultConfig = new NgbAccordionConfig(new NgbConfig());
+    const accordionCmp = TestBed.createComponent(NgbAccordion).componentInstance;
     expect(accordionCmp.type).toBe(defaultConfig.type);
     expect(accordionCmp.closeOtherPanels).toBe(defaultConfig.closeOthers);
   });
@@ -90,7 +92,10 @@ describe('ngb-accordion', () => {
     const tc = fixture.componentInstance;
     const el = fixture.nativeElement;
     // as array
-    tc.activeIds = ['one', 'two'];
+    tc.activeIds = [
+      'one',
+      'two',
+    ];
     fixture.detectChanges();
     expectOpenPanels(el, [true, true, false]);
 
@@ -634,7 +639,7 @@ describe('ngb-accordion', () => {
   });
 
   describe('Custom config as provider', () => {
-    let config = new NgbAccordionConfig();
+    let config = new NgbAccordionConfig(new NgbConfig());
     config.closeOthers = true;
     config.type = 'success';
 
@@ -657,6 +662,7 @@ describe('ngb-accordion', () => {
 
     function createTestImperativeAccordion(testHtml: string) {
       const fixture = createTestComponent(testHtml);
+      fixture.detectChanges();
       const accordion = fixture.debugElement.query(By.directive(NgbAccordion)).componentInstance;
       const nativeElement = fixture.nativeElement;
       return {fixture, accordion, nativeElement};
@@ -752,7 +758,6 @@ describe('ngb-accordion', () => {
       const {accordion, nativeElement, fixture} = createTestImperativeAccordion(testHtml);
 
       expectOpenPanels(nativeElement, [true, false]);
-
       accordion.collapse('first');
       fixture.detectChanges();
       expectOpenPanels(nativeElement, [true, false]);

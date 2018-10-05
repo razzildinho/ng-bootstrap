@@ -29,6 +29,7 @@ import {positionElements, PlacementArray} from '../util/positioning';
 import {PopupService} from '../util/popup';
 
 import {NgbPopoverConfig} from './popover-config';
+import {take} from 'rxjs/operators';
 
 let nextId = 0;
 
@@ -36,7 +37,11 @@ let nextId = 0;
   selector: 'ngb-popover-window',
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
-  host: {'[class]': '"popover" + (popoverClass ? " " + popoverClass : "")', 'role': 'tooltip', '[id]': 'id'},
+  host: {
+    '[class]': '"popover" + (popoverClass ? " " + popoverClass : "") + (enableAnimation ? " fade" : "")',
+    'role': 'tooltip',
+    '[id]': 'id'
+  },
   template: `
     <div class="arrow"></div>
     <h3 class="popover-header" *ngIf="title != null">
@@ -47,6 +52,7 @@ let nextId = 0;
   styleUrls: ['./popover.scss']
 })
 export class NgbPopoverWindow {
+  @Input() enableAnimation = true;
   @Input() title: undefined | string | TemplateRef<any>;
   @Input() id: string;
   @Input() popoverClass: string;
@@ -60,6 +66,11 @@ export class NgbPopoverWindow {
  */
 @Directive({selector: '[ngbPopover]', exportAs: 'ngbPopover'})
 export class NgbPopover implements OnInit, OnDestroy, OnChanges {
+  /**
+  * A flag to enable/disable the animation when closing.
+  */
+  @Input() enableAnimation: boolean;
+
   /**
    * Indicates whether the popover should be closed on `Escape` key and inside/outside clicks:
    *
@@ -172,6 +183,7 @@ export class NgbPopover implements OnInit, OnDestroy, OnChanges {
       private _elementRef: ElementRef<HTMLElement>, private _renderer: Renderer2, injector: Injector,
       componentFactoryResolver: ComponentFactoryResolver, viewContainerRef: ViewContainerRef, config: NgbPopoverConfig,
       private _ngZone: NgZone, @Inject(DOCUMENT) private _document: any, private _changeDetector: ChangeDetectorRef) {
+    this.enableAnimation = config.enableAnimation;
     this.autoClose = config.autoClose;
     this.placement = config.placement;
     this.triggers = config.triggers;
@@ -181,7 +193,7 @@ export class NgbPopover implements OnInit, OnDestroy, OnChanges {
     this.openDelay = config.openDelay;
     this.closeDelay = config.closeDelay;
     this._popupService = new PopupService<NgbPopoverWindow>(
-        NgbPopoverWindow, injector, viewContainerRef, _renderer, componentFactoryResolver);
+        NgbPopoverWindow, injector, viewContainerRef, _renderer, this._ngZone, componentFactoryResolver);
 
     this._zoneSubscription = _ngZone.onStable.subscribe(() => {
       if (this._windowRef) {
@@ -200,11 +212,13 @@ export class NgbPopover implements OnInit, OnDestroy, OnChanges {
    */
   open(context?: any) {
     if (!this._windowRef && !this._isDisabled()) {
-      this._windowRef = this._popupService.open(this.ngbPopover, context);
-      this._windowRef.instance.title = this.popoverTitle;
-      this._windowRef.instance.context = context;
-      this._windowRef.instance.popoverClass = this.popoverClass;
-      this._windowRef.instance.id = this._ngbPopoverWindowId;
+      this._windowRef = this._popupService.open(this.ngbPopover, context, this.enableAnimation);
+      const windowRefInstance = this._windowRef.instance;
+      windowRefInstance.enableAnimation = this.enableAnimation;
+      windowRefInstance.title = this.popoverTitle;
+      windowRefInstance.context = context;
+      windowRefInstance.popoverClass = this.popoverClass;
+      windowRefInstance.id = this._ngbPopoverWindowId;
 
       this._renderer.setAttribute(this._elementRef.nativeElement, 'aria-describedby', this._ngbPopoverWindowId);
 
@@ -227,13 +241,14 @@ export class NgbPopover implements OnInit, OnDestroy, OnChanges {
    *
    * This is considered to be a "manual" triggering of the popover.
    */
-  close(): void {
+  close() {
     if (this._windowRef) {
       this._renderer.removeAttribute(this._elementRef.nativeElement, 'aria-describedby');
-      this._popupService.close();
-      this._windowRef = null;
-      this.hidden.emit();
-      this._changeDetector.markForCheck();
+      this._popupService.close(this.enableAnimation).pipe(take(1)).subscribe(() => {
+        this._windowRef = null;
+        this.hidden.emit();
+        this._changeDetector.markForCheck();
+      });
     }
   }
 

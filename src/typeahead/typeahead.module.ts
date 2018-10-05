@@ -1,5 +1,6 @@
 import {NgModule, ModuleWithProviders} from '@angular/core';
 import {CommonModule} from '@angular/common';
+import {NgbTransitionModule} from '../util/transition/transition.module';
 
 import {NgbHighlight} from './highlight';
 import {NgbTypeaheadWindow} from './typeahead-window';
@@ -13,7 +14,7 @@ export {NgbTypeahead, NgbTypeaheadSelectItemEvent} from './typeahead';
 @NgModule({
   declarations: [NgbTypeahead, NgbHighlight, NgbTypeaheadWindow],
   exports: [NgbTypeahead, NgbHighlight],
-  imports: [CommonModule],
+  imports: [CommonModule, NgbTransitionModule],
   entryComponents: [NgbTypeaheadWindow]
 })
 export class NgbTypeaheadModule {

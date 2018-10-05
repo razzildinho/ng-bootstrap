@@ -7,6 +7,7 @@ import {ChangeDetectionStrategy, Component} from '@angular/core';
 import {NgbCarouselModule} from './carousel.module';
 import {NgbCarousel, NgbSlideEvent, NgbSlideEventDirection} from './carousel';
 import {NgbCarouselConfig} from './carousel-config';
+import {NgbConfig} from '../tokens';
 
 const createTestComponent = (html: string) =>
     createGenericTestComponent(html, TestComponent) as ComponentFixture<TestComponent>;
@@ -35,8 +36,8 @@ describe('ngb-carousel', () => {
   });
 
   it('should initialize inputs with default values', () => {
-    const defaultConfig = new NgbCarouselConfig();
-    const carousel = new NgbCarousel(new NgbCarouselConfig(), null, null, null);
+    const defaultConfig = new NgbCarouselConfig(new NgbConfig());
+    const carousel = TestBed.createComponent(NgbCarousel).componentInstance;
 
     expect(carousel.interval).toBe(defaultConfig.interval);
     expect(carousel.wrap).toBe(defaultConfig.wrap);
@@ -720,7 +721,7 @@ describe('ngb-carousel', () => {
   });
 
   describe('Custom config as provider', () => {
-    const config = new NgbCarouselConfig();
+    const config = new NgbCarouselConfig(new NgbConfig());
     config.interval = 1000;
     config.wrap = false;
     config.keyboard = false;

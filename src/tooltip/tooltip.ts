@@ -27,6 +27,7 @@ import {positionElements, PlacementArray} from '../util/positioning';
 import {PopupService} from '../util/popup';
 
 import {NgbTooltipConfig} from './tooltip-config';
+import {take} from 'rxjs/operators';
 
 let nextId = 0;
 
@@ -34,7 +35,7 @@ let nextId = 0;
   selector: 'ngb-tooltip-window',
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
-  host: {'[class]': '"tooltip show" + (tooltipClass ? " " + tooltipClass : "")', 'role': 'tooltip', '[id]': 'id'},
+  host: {'[class]': '"tooltip fade" + (tooltipClass ? " " + tooltipClass : "")', 'role': 'tooltip', '[id]': 'id'},
   template: `<div class="arrow"></div><div class="tooltip-inner"><ng-content></ng-content></div>`,
   styleUrls: ['./tooltip.scss']
 })
@@ -48,6 +49,11 @@ export class NgbTooltipWindow {
  */
 @Directive({selector: '[ngbTooltip]', exportAs: 'ngbTooltip'})
 export class NgbTooltip implements OnInit, OnDestroy {
+  /**
+  * A flag to enable/disable the animation when closing.
+  */
+  @Input() enableAnimation: boolean;
+
   /**
    * Indicates whether the tooltip should be closed on `Escape` key and inside/outside clicks:
    *
@@ -137,6 +143,7 @@ export class NgbTooltip implements OnInit, OnDestroy {
       private _elementRef: ElementRef<HTMLElement>, private _renderer: Renderer2, injector: Injector,
       componentFactoryResolver: ComponentFactoryResolver, viewContainerRef: ViewContainerRef, config: NgbTooltipConfig,
       private _ngZone: NgZone, @Inject(DOCUMENT) private _document: any, private _changeDetector: ChangeDetectorRef) {
+    this.enableAnimation = config.enableAnimation;
     this.autoClose = config.autoClose;
     this.placement = config.placement;
     this.triggers = config.triggers;
@@ -146,7 +153,7 @@ export class NgbTooltip implements OnInit, OnDestroy {
     this.openDelay = config.openDelay;
     this.closeDelay = config.closeDelay;
     this._popupService = new PopupService<NgbTooltipWindow>(
-        NgbTooltipWindow, injector, viewContainerRef, _renderer, componentFactoryResolver);
+        NgbTooltipWindow, injector, viewContainerRef, _renderer, this._ngZone, componentFactoryResolver);
 
     this._zoneSubscription = _ngZone.onStable.subscribe(() => {
       if (this._windowRef) {
@@ -180,7 +187,7 @@ export class NgbTooltip implements OnInit, OnDestroy {
    */
   open(context?: any) {
     if (!this._windowRef && this._ngbTooltip && !this.disableTooltip) {
-      this._windowRef = this._popupService.open(this._ngbTooltip, context);
+      this._windowRef = this._popupService.open(this._ngbTooltip, context, this.enableAnimation);
       this._windowRef.instance.tooltipClass = this.tooltipClass;
       this._windowRef.instance.id = this._ngbTooltipWindowId;
 
@@ -206,13 +213,14 @@ export class NgbTooltip implements OnInit, OnDestroy {
    *
    * This is considered to be a "manual" triggering of the tooltip.
    */
-  close(): void {
+  close() {
     if (this._windowRef != null) {
       this._renderer.removeAttribute(this._elementRef.nativeElement, 'aria-describedby');
-      this._popupService.close();
-      this._windowRef = null;
-      this.hidden.emit();
-      this._changeDetector.markForCheck();
+      this._popupService.close(this.enableAnimation).pipe(take(1)).subscribe(() => {
+        this._windowRef = null;
+        this.hidden.emit();
+        this._changeDetector.markForCheck();
+      });
     }
   }
 

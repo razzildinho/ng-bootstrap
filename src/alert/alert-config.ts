@@ -1,4 +1,5 @@
 import {Injectable} from '@angular/core';
+import {NgbConfig} from '../tokens';
 
 /**
  * A configuration service for the [NgbAlert](#/components/alert/api#NgbAlert) component.
@@ -10,4 +11,7 @@ import {Injectable} from '@angular/core';
 export class NgbAlertConfig {
   dismissible = true;
   type = 'warning';
+  enableAnimation: boolean;
+
+  constructor(ngbConfig: NgbConfig) { this.enableAnimation = ngbConfig.enableAnimation; }
 }
